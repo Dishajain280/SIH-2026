@@ -17,7 +17,7 @@ import {
 import { BarChart3, Building2, TrendingUp, Users } from 'lucide-react'
 import { insightsForSite, SITE_BY_ID, SITES } from '../data/mockData'
 import { cn, fmt, RISK_STYLES } from '../lib/utils'
-import { RiskBadge, SectionTitle } from '../components/ui'
+import { ChartTip, PageHeader, RiskBadge } from '../components/ui'
 import { Sparkline } from '../components/Sparkline'
 
 export default function SiteInsights() {
@@ -30,8 +30,9 @@ export default function SiteInsights() {
 
   return (
     <div className="animate-fade-up space-y-6">
-      <SectionTitle
-        icon={<BarChart3 className="h-4.5 w-4.5" />}
+      <PageHeader
+        icon={<BarChart3 className="h-5 w-5" />}
+        eyebrow="Site Analytics"
         title="Site Insights"
         sub="Deep-dive analytics per industrial site — exposure profile, trend and leading precursors"
       />
@@ -43,9 +44,9 @@ export default function SiteInsights() {
             key={s.id}
             onClick={() => setSiteId(s.id)}
             className={cn(
-              'flex items-center gap-2 rounded-sm border px-3 py-2 text-left transition-colors',
+              'flex items-center gap-2 rounded-[var(--radius-control)] border px-3 py-2 text-left transition-all duration-150 hover:-translate-y-px hover:shadow-rest',
               siteId === s.id
-                ? 'border-navy-900 bg-navy-900 text-white'
+                ? 'border-navy-900 bg-navy-900 text-white shadow-rest'
                 : 'border-navy-200 bg-white text-navy-700 hover:border-navy-300'
             )}
           >
@@ -136,7 +137,7 @@ export default function SiteInsights() {
                   fillOpacity={0.45}
                   strokeWidth={2}
                 />
-                <Tooltip contentStyle={{ borderRadius: 4, border: '1px solid #dce4f0', fontSize: 12 }} />
+                <Tooltip content={<ChartTip />} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -156,7 +157,7 @@ export default function SiteInsights() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#dce4f0" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#7c94b8' }} axisLine={false} tickLine={false} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#7c94b8' }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 4, border: '1px solid #dce4f0', fontSize: 12 }} />
+                <Tooltip content={<ChartTip />} />
                 <Line
                   type="monotone"
                   dataKey="score"

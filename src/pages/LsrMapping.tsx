@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Filter, Info, Scale, Search, SlidersHorizontal, X } from 'lucide-react'
 import { LSR_ROWS, LSR_RULES, RULE_BY_ID, SITE_BY_ID } from '../data/mockData'
 import { cn } from '../lib/utils'
-import { ConfidenceBar, SectionTitle, StatusBadge } from '../components/ui'
+import { ConfidenceBar, PageHeader, StatusBadge } from '../components/ui'
 
 type StatusFilter = 'All' | 'Mapped' | 'Manual Review'
 
@@ -35,8 +35,9 @@ export default function LsrMapping() {
 
   return (
     <div className="animate-fade-up space-y-6">
-      <SectionTitle
-        icon={<Scale className="h-4.5 w-4.5" />}
+      <PageHeader
+        icon={<Scale className="h-5 w-5" />}
+        eyebrow="Rule Engine"
         title="Life-Saving Rules Mapping"
         sub="How AI-detected precursors map to the 9 Life-Saving Rules"
         right={
@@ -127,8 +128,9 @@ export default function LsrMapping() {
                 return (
                   <Fragment key={r.id}>
                     <tr
-                      className="cursor-pointer transition-colors hover:bg-navy-50/60"
+                      className="group cursor-pointer transition-all duration-150 hover:bg-navy-50/70"
                       onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                      aria-expanded={expanded === r.id}
                     >
                       <td className="px-5 py-3.5">
                         <div className="font-mono text-[12.5px] font-semibold text-navy-900">{r.id}</div>
@@ -160,7 +162,12 @@ export default function LsrMapping() {
                         <StatusBadge status={r.status} />
                       </td>
                       <td className="px-5 py-3.5 text-navy-300">
-                        <Info className="h-4 w-4" />
+                        <Info
+                          className={cn(
+                            'h-4 w-4 transition-all duration-200 group-hover:text-navy-600',
+                            expanded === r.id && 'rotate-180 text-gold-600'
+                          )}
+                        />
                       </td>
                     </tr>
                     {expanded === r.id && (

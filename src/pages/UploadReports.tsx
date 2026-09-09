@@ -13,7 +13,7 @@ import {
 import { cn, fmtSize } from '../lib/utils'
 import type { NlpResult, UploadResult } from '../types'
 import { NLP_RESULTS } from '../data/mockData'
-import { ConfidenceBar, RiskBadge, SectionTitle, StatusBadge } from '../components/ui'
+import { ConfidenceBar, PageHeader, RiskBadge, StatusBadge } from '../components/ui'
 
 const ACCEPT = '.csv,.pdf,.txt,.doc,.docx,.md'
 
@@ -296,8 +296,9 @@ export default function UploadReports() {
 
   return (
     <div className="animate-fade-up space-y-6">
-      <SectionTitle
-        icon={<FileUp className="h-4.5 w-4.5" />}
+      <PageHeader
+        icon={<FileUp className="h-5 w-5" />}
+        eyebrow="Document Intelligence"
         title="Upload Reports & NLP Analysis"
         sub="Ingest unstructured safety reports — the AI extracts entities, precursors and LSR mappings"
       />

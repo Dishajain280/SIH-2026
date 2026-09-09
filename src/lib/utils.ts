@@ -14,6 +14,7 @@ export function fmtSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
+/** Strong fills — used on heatmap tiles (white/dark text on top). */
 export const RISK_STYLES: Record<RiskLevel, { chip: string; dot: string; cell: string; hex: string }> = {
   Critical: {
     chip: 'border-red-200 bg-red-50 text-red-700',
@@ -28,7 +29,7 @@ export const RISK_STYLES: Record<RiskLevel, { chip: string; dot: string; cell: s
     hex: '#efa93b',
   },
   Medium: {
-    chip: 'border-navy-200 bg-navy-50 text-navy-700',
+    chip: 'border-navy-200 bg-navy-50 text-navy-600',
     dot: 'bg-navy-400',
     cell: 'bg-navy-300 text-navy-900',
     hex: '#7c94b8',
@@ -39,6 +40,14 @@ export const RISK_STYLES: Record<RiskLevel, { chip: string; dot: string; cell: s
     cell: 'bg-emerald-100 text-emerald-800',
     hex: '#10b981',
   },
+}
+
+/** Softer, WCAG-AA text variants — used for badges sitting on white cards. */
+export const RISK_SOFT: Record<RiskLevel, string> = {
+  Critical: 'border-red-200 bg-red-50 text-red-700',
+  High: 'border-gold-300 bg-gold-100 text-gold-700',
+  Medium: 'border-navy-200 bg-navy-50 text-navy-600',
+  Low: 'border-emerald-200 bg-emerald-50 text-emerald-700',
 }
 
 export function confBadge(c: number): string {

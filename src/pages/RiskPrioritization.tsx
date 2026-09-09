@@ -14,9 +14,10 @@ import {
   YAxis,
 } from 'recharts'
 import { Crosshair, Siren } from 'lucide-react'
+import { ChartTip } from '../components/ui'
 import { SITE_BY_ID, SITES } from '../data/mockData'
 import { cn, fmt } from '../lib/utils'
-import { RiskBadge, SectionTitle } from '../components/ui'
+import { PageHeader, RiskBadge } from '../components/ui'
 
 const INCIDENT_COLORS: Record<string, string> = {
   'Struck-By': '#0a1526',
@@ -62,9 +63,10 @@ export default function RiskPrioritization() {
 
   return (
     <div className="animate-fade-up space-y-6">
-      <SectionTitle
-        icon={<Crosshair className="h-4.5 w-4.5" />}
-        title="Risk Prioritization & Intervention Planner"
+      <PageHeader
+        icon={<Crosshair className="h-5 w-5" />}
+        eyebrow="Intervention Planner"
+        title="Risk Prioritization"
         sub="Where to send safety resources first — ranked by composite AI risk scoring"
       />
 
@@ -83,8 +85,10 @@ export default function RiskPrioritization() {
                 key={s.id}
                 onClick={() => setSelectedSite(s.id)}
                 className={cn(
-                  'flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors',
-                  selectedSite === s.id ? 'bg-navy-50' : 'hover:bg-navy-50/50'
+                  'group flex w-full items-center gap-3 px-5 py-3.5 text-left transition-all duration-150',
+                  selectedSite === s.id
+                    ? 'bg-navy-50 shadow-[inset_3px_0_0_0_var(--color-gold-500)]'
+                    : 'hover:bg-navy-50/50 hover:translate-x-0.5'
                 )}
               >
                 <span
@@ -198,10 +202,7 @@ export default function RiskPrioritization() {
                       height={46}
                     />
                     <YAxis tick={{ fontSize: 11, fill: '#7c94b8' }} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      cursor={{ fill: 'rgba(10,21,38,0.04)' }}
-                      contentStyle={{ borderRadius: 4, border: '1px solid #dce4f0', fontSize: 12 }}
-                    />
+                    <Tooltip content={<ChartTip />} cursor={{ fill: 'rgba(10,21,38,0.04)' }} />
                     <Bar dataKey="count" name="Incidents" radius={[3, 3, 0, 0]}>
                       {barData.map((d) => (
                         <Cell key={d.type} fill={INCIDENT_COLORS[d.type] ?? '#223a63'} />
@@ -233,9 +234,7 @@ export default function RiskPrioritization() {
                         <Cell key={d.name} fill={INCIDENT_COLORS[d.name] ?? '#223a63'} />
                       ))}
                     </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: 4, border: '1px solid #dce4f0', fontSize: 12 }}
-                    />
+                    <Tooltip content={<ChartTip />} />
                     <Legend wrapperStyle={{ fontSize: 10.5 }} iconSize={8} />
                   </PieChart>
                 </ResponsiveContainer>
