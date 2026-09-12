@@ -3,7 +3,28 @@
 > vite
 
 
-  [32m[1mVITE[22m v6.4.3[39m  [2mready in [0m[1m1751[22m[2m[0m ms[22m
+  [32m[1mVITE[22m v6.4.3[39m  [2mready in [0m[1m641[22m[2m[0m ms[22m
 
   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
 [2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m11:26:16 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/UploadReports.tsx, /src/index.css[22m
+[2m11:27:36 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/UploadReports.tsx, /src/index.css[22m
+[2m11:27:43 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Sidebar.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Topbar.tsx, /src/pages/Dashboard.tsx, /src/pages/LsrMapping.tsx, /src/pages/UploadReports.tsx[22m
+[2m11:33:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/types.ts[22m
+[2m11:33:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/types.ts[22m
+[2m11:33:43 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Sidebar.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Topbar.tsx, /src/pages/Dashboard.tsx, /src/pages/LsrMapping.tsx, /src/pages/UploadReports.tsx, /src/pages/SiteInsights.tsx[22m
+[2m11:34:55 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:35:26 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/@fs/C:\Users\LENOVO\Desktop\SIH\src\components\IndiaMap.tsx, /src/index.css[22m
+[2m11:39:59 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Sidebar.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Topbar.tsx, /src/pages/Dashboard.tsx, /src/pages/LsrMapping.tsx, /src/pages/UploadReports.tsx, /src/pages/SiteInsights.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\IndiaMap.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\TimeRangeControl.tsx[22m
+[2m11:40:23 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:47:53 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/UploadReports.tsx, /src/index.css[22m
+[2m11:48:32 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/UploadReports.tsx, /src/index.css[22m
+[2m11:49:12 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/UploadReports.tsx, /src/index.css[22m
+[2m11:49:57 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/UploadReports.tsx, /src/index.css[22m
+[2m11:50:46 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/UploadReports.tsx, /src/index.css[22m
+[2m11:52:42 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/RiskPrioritization.tsx, /src/index.css[22m
+[2m11:55:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Sidebar.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Topbar.tsx, /src/pages/Dashboard.tsx, /src/pages/LsrMapping.tsx, /src/pages/UploadReports.tsx, /src/pages/SiteInsights.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\IndiaMap.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\TimeRangeControl.tsx, /src/pages/RiskPrioritization.tsx[22m
+[2m11:56:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/SiteInsights.tsx, /src/index.css[22m
+[2m11:58:50 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Sidebar.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Topbar.tsx, /src/pages/Dashboard.tsx, /src/pages/LsrMapping.tsx, /src/pages/UploadReports.tsx, /src/pages/SiteInsights.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\IndiaMap.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\TimeRangeControl.tsx, /src/pages/RiskPrioritization.tsx[22m
+[2m12:09:00 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Sidebar.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\layout\Topbar.tsx, /src/pages/Dashboard.tsx, /src/pages/LsrMapping.tsx, /src/pages/UploadReports.tsx, /src/pages/SiteInsights.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\IndiaMap.tsx, /@fs/C:\Users\LENOVO\Desktop\SIH\src\components\TimeRangeControl.tsx, /src/pages/RiskPrioritization.tsx[22m
+[2m12:10:39 AM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m

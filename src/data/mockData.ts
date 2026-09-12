@@ -3,9 +3,12 @@ import type {
   LsrMappingRow,
   Metric,
   NlpResult,
+  SeriesPoint,
   SifAlert,
   Site,
+  SiteGeo,
   SiteInsight,
+  TimeRange,
   TrendPoint,
 } from '../types'
 
@@ -170,8 +173,11 @@ export const LSR_RULES: { id: string; name: string; category: string }[] = [
 
 export const RULE_BY_ID = new Map(LSR_RULES.map((r) => [r.id, r]))
 
-export function statusForConfidence(c: number): 'Mapped' | 'Manual Review' {
-  return c >= 75 ? 'Mapped' : 'Manual Review'
+/** Default mapping cutoff. Overridable so the UI can demo confidence-threshold behavior. */
+export const DEFAULT_LSR_THRESHOLD = 75
+
+export function statusForConfidence(c: number, threshold: number = DEFAULT_LSR_THRESHOLD): 'Mapped' | 'Manual Review' {
+  return c >= threshold ? 'Mapped' : 'Manual Review'
 }
 
 // --------------------------------------------------------- LSR mapping rows
@@ -188,6 +194,10 @@ export const LSR_ROWS: LsrMappingRow[] = [
   { id: 'SR-2461', date: '2026-09-01', siteId: 'JAM-03', reportText: 'Sample collector descended API separator chamber using site-made ladder; gas test record page torn.', precursor: 'Confined space entry without verified gas test', rule: 'Confined Space Entry Permit', ruleId: 'LSR-04', confidence: 89, status: 'Mapped' },
   { id: 'SR-2458', date: '2026-09-01', siteId: 'KLK-05', reportText: 'Crew cut pipeline plug with oxy-acetylene though line tag indicated residual product inside.', precursor: 'Hot work on line with unknown contents', rule: 'Verify Isolation Before Work (LOTO)', ruleId: 'LSR-03', confidence: 74, status: 'Manual Review' },
   { id: 'SR-2455', date: '2026-08-31', siteId: 'PNE-06', reportText: 'Maintenance tech reached into running pick-place robot cell to clear jam while light curtain muted.', precursor: 'Reach into operating robot cell', rule: 'Machine Guarding — Guards In Place Before Start', ruleId: 'LSR-09', confidence: 87, status: 'Mapped' },
+  // Reports that also appear in the NLP analyzer — corrections made there flow into these rows.
+  { id: 'SR-2483', date: '2026-09-06', siteId: 'SBG-01', reportText: 'Rigger climbed the EOT crane gantry at ~14 m to replace a worn beam clamp; harness not attached to any anchor point while a 3.2 t lift was in progress over the adjacent aisle.', precursor: 'Work at height without fall arrest near suspended load', rule: 'Work at Height — 100% Tie-Off', ruleId: 'LSR-01', confidence: 96, status: 'Mapped' },
+  { id: 'SR-2484', date: '2026-09-06', siteId: 'VSKP-02', reportText: 'AB stepped inside the snap-back zone to free a tangled mooring rope while the line was still under tension; barricade tape had fallen earlier and was not re-hung.', precursor: 'Line-of-fire exposure to mooring snap-back', rule: 'Barricade Line-of-Fire Exclusion Zones', ruleId: 'LSR-02', confidence: 88, status: 'Mapped' },
+  { id: 'SR-2485', date: '2026-09-07', siteId: 'JAM-03', reportText: 'Recycle line flange opened for gasket change though the blind list still showed the spade as not yet fitted. Gasket replaced without event.', precursor: 'Possible isolation verification gap (low narrative clarity)', rule: '—', ruleId: '—', confidence: 58, status: 'Manual Review' },
 ]
 
 // ----------------------------------------------------------------- alerts --
@@ -460,4 +470,281 @@ export function insightsForSite(siteId: string): SiteInsight {
 // helper used by the dashboard hero
 export function totalReports(): number {
   return SITES.reduce((a, s) => a + s.reports, 0)
+}
+
+// ------------------------------------------------------------ geolocation --
+/** Approximate plant coordinates, used to place pins on the India map. */
+export const SITE_COORDS: Record<string, { lon: number; lat: number }> = {
+  'SBG-01': { lon: 78.39, lat: 17.49 }, // Hyderabad
+  'VSKP-02': { lon: 83.22, lat: 17.69 }, // Visakhapatnam
+  'JAM-03': { lon: 70.07, lat: 22.47 }, // Jamnagar
+  'NGP-04': { lon: 79.09, lat: 21.15 }, // Nagpur
+  'KLK-05': { lon: 88.36, lat: 22.57 }, // Kolkata
+  'PNE-06': { lon: 73.86, lat: 18.52 }, // Pune
+  'GWN-07': { lon: 91.74, lat: 26.14 }, // Guwahati
+  'KCH-08': { lon: 76.27, lat: 9.93 }, // Kochi
+}
+
+/**
+ * Simplified India outline as [lon, lat] pairs (clockwise from the Kutch coast).
+ * Stylised for legibility at dashboard size — not survey-accurate.
+ */
+export const INDIA_OUTLINE: [number, number][] = [
+  [68.2, 23.8], [68.9, 23.9], [70.0, 22.6], [69.6, 21.4], [70.4, 20.9],
+  [72.6, 21.6], [72.9, 19.9], [73.3, 18.1], [73.9, 16.0], [74.5, 13.0],
+  [75.8, 11.3], [76.5, 9.0], [77.5, 8.1], [78.3, 8.9], [79.5, 10.3],
+  [80.3, 13.5], [80.5, 15.8], [82.3, 17.0], [84.5, 19.0], [86.9, 20.7],
+  [87.5, 21.6], [88.9, 21.7], [89.1, 22.6], [89.0, 25.3], [89.8, 26.0],
+  [92.0, 25.2], [92.5, 24.0], [93.4, 24.0], [94.5, 25.5], [95.5, 26.7],
+  [97.4, 27.5], [96.0, 29.3], [94.0, 29.0], [92.0, 28.2], [90.0, 28.0],
+  [88.9, 27.3], [88.0, 26.8], [85.0, 27.5], [81.0, 28.5], [80.0, 28.8],
+  [78.0, 30.5], [76.0, 32.0], [74.5, 34.0], [76.5, 35.5], [78.5, 34.5],
+  [79.5, 33.0], [78.5, 31.0], [76.5, 29.7], [75.0, 27.5], [72.5, 24.5],
+  [71.0, 24.3], [70.0, 25.0], [70.5, 26.5], [72.3, 28.6], [73.5, 29.9],
+  [74.5, 31.2], [74.2, 32.5], [73.9, 34.4], [74.6, 35.0], [75.2, 34.0],
+  [74.3, 32.0], [73.4, 30.0], [71.9, 28.0], [70.6, 26.0], [69.4, 25.0],
+  [68.7, 24.2],
+]
+
+// ------------------------------------------------------------ LSR compliance
+/**
+ * Percentage of logged incidents that carry a clear Life-Saving Rule mapping.
+ * Derived from each site's incident mix and its unmapped count — the KPI a
+ * safety officer actually reports on.
+ */
+export function lsrComplianceBySite(): SiteGeo[] {
+  return SITES.map((s) => {
+    const total = Object.values(s.incidentTypes).reduce((a, n) => a + n, 0)
+    const mapped = Math.max(0, total - s.unmapped)
+    const coords = SITE_COORDS[s.id] ?? { lon: 78, lat: 22 }
+    return {
+      id: s.id,
+      name: s.name,
+      city: s.city,
+      region: s.region,
+      lon: coords.lon,
+      lat: coords.lat,
+      level: s.riskLevel,
+      score: s.riskScore,
+      reports: s.reports,
+      mapped,
+      total,
+      compliance: total > 0 ? Math.round((mapped / total) * 1000) / 10 : 100,
+    }
+  })
+}
+
+export const SITE_GEO: SiteGeo[] = lsrComplianceBySite()
+
+/** Fleet-wide compliance across every site. */
+export function fleetCompliance(): number {
+  const mapped = SITE_GEO.reduce((a, g) => a + g.mapped, 0)
+  const total = SITE_GEO.reduce((a, g) => a + g.total, 0)
+  return total > 0 ? Math.round((mapped / total) * 1000) / 10 : 0
+}
+
+// ---------------------------------------------------------------- time series
+export const TIME_RANGES: { id: TimeRange; label: string; hint: string }[] = [
+  { id: '24h', label: '24H', hint: 'Last 24 hours' },
+  { id: '7d', label: '7D', hint: 'Last 7 days' },
+  { id: '30d', label: '30D', hint: 'Last 30 days' },
+  { id: '90d', label: '90D', hint: 'Last 90 days' },
+  { id: 'all', label: 'All', hint: 'All 10 recorded months' },
+]
+
+/** Deterministic PRNG so the generated series is stable across renders. */
+function mulberry32(seed: number): () => number {
+  let a = seed
+  return () => {
+    a |= 0
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function linearFit(values: number[]): { slope: number; intercept: number } {
+  const n = values.length
+  if (n < 2) return { slope: 0, intercept: values[0] ?? 0 }
+  const sumX = (n * (n - 1)) / 2
+  const sumY = values.reduce((a, v) => a + v, 0)
+  const sumXY = values.reduce((a, v, i) => a + i * v, 0)
+  const sumXX = values.reduce((a, _v, i) => a + i * i, 0)
+  const denom = n * sumXX - sumX * sumX
+  const slope = denom === 0 ? 0 : (n * sumXY - sumX * sumY) / denom
+  return { slope, intercept: (sumY - slope * sumX) / n }
+}
+
+/**
+ * Months shown in the forward projection. September 2026 is the current,
+ * in-progress month and is excluded from the fit so a partial month never
+ * drags the projection down.
+ */
+const PROJECTION_MONTHS = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar']
+
+/**
+ * Build a time series for the selected window, plus a forward projection with
+ * widening confidence bounds. Historical points carry null projection values and
+ * vice versa, so each artist draws only its own span.
+ */
+export function buildSeries(range: TimeRange): SeriesPoint[] {
+  if (range === 'all') {
+    // Drop the trailing in-progress month before fitting.
+    const complete = TREND_SERIES.slice(0, -1)
+    const hist: SeriesPoint[] = complete.map((p) => ({
+      label: p.month,
+      reports: p.reports,
+      precursors: p.precursors,
+      sifEvents: p.sifEvents,
+    }))
+    const recent = hist.slice(-6).map((p) => p.precursors ?? 0)
+    const { slope } = linearFit(recent)
+    const last = recent[recent.length - 1] ?? 0
+    // Bridge: the last actual point starts the projection so the dashed line connects.
+    hist[hist.length - 1] = { ...hist[hist.length - 1], projected: last, projLower: last, projUpper: last }
+    // Only project upward — a safety programme that degrades is not the expected trend.
+    const drift = Math.max(0.4, slope)
+    let prev = last
+    PROJECTION_MONTHS.forEach((label, i) => {
+      const val = Math.max(1, Math.round(prev + drift))
+      const spread = Math.round(2 + i * 1.8)
+      hist.push({
+        label,
+        reports: null,
+        precursors: null,
+        sifEvents: null,
+        projected: val,
+        projLower: Math.max(0, val - spread),
+        projUpper: val + spread,
+      })
+      prev = val
+    })
+    return hist
+  }
+
+  const cfg =
+    range === '24h'
+      ? { points: 12, stepHours: 2, perDay: { reports: 26, precursors: 3.2 }, horizon: 6, horizonStepHours: 2, seed: 7 }
+      : range === '7d'
+        ? { points: 7, stepHours: 24, perDay: { reports: 26, precursors: 3.2 }, horizon: 7, horizonStepHours: 24, seed: 11 }
+        : range === '30d'
+          ? { points: 30, stepHours: 24, perDay: { reports: 26, precursors: 3.2 }, horizon: 14, horizonStepHours: 24, seed: 13 }
+          : { points: 90, stepHours: 24, perDay: { reports: 26, precursors: 3.2 }, horizon: 30, horizonStepHours: 24, seed: 17 }
+
+  const rand = mulberry32(cfg.seed)
+  const now = new Date('2026-09-11T12:00:00')
+  const stepMs = cfg.stepHours * 3600_000
+  const start = now.getTime() - (cfg.points - 1) * stepMs
+
+  const fmt = (t: number): string => {
+    const d = new Date(t)
+    if (cfg.stepHours < 24) return `${String(d.getHours()).padStart(2, '0')}:00`
+    return `${d.toLocaleString('en-US', { month: 'short' })} ${d.getDate()}`
+  }
+
+  const out: SeriesPoint[] = []
+  let prevPrec = cfg.perDay.precursors
+  for (let i = 0; i < cfg.points; i++) {
+    const t = start + i * stepMs
+    const dow = new Date(t).getDay()
+    const weekend = dow === 0 || dow === 6 ? 0.55 : 1
+    const drift = 1 + (i / cfg.points) * 0.28
+    const noise = 0.78 + rand() * 0.44
+    const share = cfg.stepHours / 24
+    const reports = Math.max(0, Math.round(cfg.perDay.reports * share * weekend * drift * noise))
+    const precursors = Math.max(0, Math.round(cfg.perDay.precursors * share * weekend * drift * (0.7 + rand() * 0.7)))
+    prevPrec = precursors
+    out.push({
+      label: fmt(t),
+      reports,
+      precursors,
+      sifEvents: rand() > 0.86 ? 1 : 0,
+      projected: null,
+      projLower: null,
+      projUpper: null,
+    })
+  }
+
+  // Project forward from a linear fit on the most recent third of the window.
+  const tail = out.slice(-Math.max(3, Math.round(cfg.points / 3))).map((p) => p.precursors ?? 0)
+  const { slope } = linearFit(tail)
+  const lastPrec = out[out.length - 1].precursors ?? prevPrec
+  const lastT = start + (cfg.points - 1) * stepMs
+  const hStepMs = cfg.horizonStepHours * 3600_000
+
+  out[out.length - 1] = { ...out[out.length - 1], projected: lastPrec, projLower: lastPrec, projUpper: lastPrec }
+
+  let prev = lastPrec
+  for (let i = 1; i <= cfg.horizon; i++) {
+    const val = Math.max(0, Math.round(prev + slope * 0.85))
+    const spread = 0.6 + i * 0.55
+    out.push({
+      label: fmt(lastT + i * hStepMs),
+      reports: null,
+      precursors: null,
+      sifEvents: null,
+      projected: val,
+      projLower: Math.max(0, Math.round(val - spread)),
+      projUpper: Math.round(val + spread),
+    })
+    prev = val
+  }
+
+  return out
+}
+
+/**
+ * Risk-score trajectory for one site over the selected window, ending at the
+ * site's current composite score. 'all' returns the recorded monthly history.
+ */
+export function siteRiskSeries(siteId: string, range: TimeRange): { label: string; score: number }[] {
+  if (range === 'all') {
+    return insightsForSite(siteId).riskTrend.map((p) => ({ label: p.month, score: p.score }))
+  }
+
+  const site = SITE_BY_ID.get(siteId)
+  const target = site?.riskScore ?? 50
+  const cfg =
+    range === '24h'
+      ? { points: 12, stepHours: 2 }
+      : range === '7d'
+        ? { points: 7, stepHours: 24 }
+        : range === '30d'
+          ? { points: 30, stepHours: 24 }
+          : { points: 90, stepHours: 24 }
+
+  const seed = siteId.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7 + 3
+  const rand = mulberry32(seed)
+  const now = new Date('2026-09-11T12:00:00').getTime()
+  const stepMs = cfg.stepHours * 3600_000
+  const start = now - (cfg.points - 1) * stepMs
+
+  const out: { label: string; score: number }[] = []
+  for (let i = 0; i < cfg.points; i++) {
+    const d = new Date(start + i * stepMs)
+    const label =
+      cfg.stepHours < 24
+        ? `${String(d.getHours()).padStart(2, '0')}:00`
+        : `${d.toLocaleString('en-US', { month: 'short' })} ${d.getDate()}`
+    // Drift up toward the current score so the series reads as an escalation.
+    const progress = i / Math.max(1, cfg.points - 1)
+    const base = target - (1 - progress) * (7 + (target % 6))
+    const noise = (rand() - 0.5) * 4
+    out.push({ label, score: Math.max(1, Math.min(100, Math.round(base + noise))) })
+  }
+  // Pin the final point to the real current score.
+  out[out.length - 1] = { ...out[out.length - 1], score: target }
+  return out
+}
+
+/** Projected precursor level at the end of the forecast horizon, with its unit. */
+export function projectedHeadline(
+  series: SeriesPoint[],
+  range: TimeRange
+): { value: number; label: string; unit: 'month' | 'day' } | null {
+  const future = series.filter((p) => p.projected != null && p.reports == null)
+  if (future.length === 0) return null
+  const last = future[future.length - 1]
+  return { value: last.projected ?? 0, label: last.label, unit: range === 'all' ? 'month' : 'day' }
 }

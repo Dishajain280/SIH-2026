@@ -6,8 +6,30 @@ import { ALERT_SEED, SITES } from '../data/mockData'
 import type { SifAlert } from '../types'
 import { RiskBadge } from '../components/ui'
 
+const STORAGE_KEY = 'sifguard.topbar.alerts.v1'
+
+function loadAlerts(): SifAlert[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return ALERT_SEED
+    const parsed = JSON.parse(raw) as SifAlert[]
+    if (!Array.isArray(parsed) || parsed.length === 0) return ALERT_SEED
+    return parsed
+  } catch {
+    return ALERT_SEED
+  }
+}
+
+function saveAlerts(alerts: SifAlert[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(alerts.slice(0, 50)))
+  } catch {
+    // localStorage full or blocked — no-op, app still works
+  }
+}
+
 export function Topbar({ onMenu }: { onMenu: () => void }) {
-  const [alerts, setAlerts] = useState<SifAlert[]>(ALERT_SEED)
+  const [alerts, setAlerts] = useState<SifAlert[]>(loadAlerts)
   const [bellOpen, setBellOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [flash, setFlash] = useState(0)
@@ -25,13 +47,42 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
       { siteId: 'PNE-06', site: 'Pune Auto Components', precursor: 'Light curtain muted during robot teach mode', rule: 'Machine Guarding — Guards In Place Before Start', ruleId: 'LSR-09', severity: 'High', confidence: 86 },
     ]
     let i = 0
-    const t = setInterval(() => {
-      const base = extra[i % extra.length]
-      i += 1
-      setAlerts((prev) => [{ ...base, id: `AL-${3400 + i}`, time: 'just now' }, ...prev].slice(0, 12))
-      setFlash((f) => f + 1)
-    }, 14000)
-    return () => clearInterval(t)
+    let timer: ReturnType<typeof setInterval> | null = null
+
+    const start = () => {
+      if (timer) return
+      timer = setInterval(() => {
+        const base = extra[i % extra.length]
+        i += 1
+        setAlerts((prev) => {
+          const next = [{ ...base, id: `AL-T${i}-${Date.now()}`, time: 'just now' }, ...prev]
+            .slice(0, 12)
+          saveAlerts(next)
+          return next
+        })
+        setFlash((f) => f + 1)
+      }, 14000)
+    }
+
+    const stop = () => {
+      if (timer) {
+        clearInterval(timer)
+        timer = null
+      }
+    }
+
+    // Pause while the tab is hidden — prevents a burst of queued alerts on return.
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') stop()
+      else start()
+    }
+    document.addEventListener('visibilitychange', onVis)
+    start()
+
+    return () => {
+      stop()
+      document.removeEventListener('visibilitychange', onVis)
+    }
   }, [])
 
   // Flash animation re-trigger
@@ -200,9 +251,10 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         </div>
 
         {/* Profile */}
-        <button
+        <div
           className="group flex items-center gap-3 rounded-[var(--radius-control)] border-l border-navy-100 py-1 pl-2 pr-1 transition-colors hover:bg-navy-50 md:pl-4"
-          aria-label="Account menu — Meera Iyer, HSE Analytics Lead"
+          aria-label="Account: Ar. Meera Iyer, HSE Analytics Lead"
+          role="status"
         >
           <span className="hidden text-right leading-tight md:block">
             <span className="block text-[13px] font-semibold text-navy-900">Ar. Meera Iyer</span>
@@ -211,8 +263,8 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-navy-900 text-[12px] font-bold text-gold-500 ring-2 ring-transparent transition-all group-hover:ring-gold-500/40">
             MI
           </span>
-          <ChevronDown className="hidden h-4 w-4 text-navy-300 transition-transform duration-150 group-hover:translate-y-0.5 md:block" />
-        </button>
+          <ChevronDown className="hidden h-4 w-4 text-navy-300 transition-transform duration-150 group-hover:translate-y-0.5 md:block" aria-hidden />
+        </div>
       </div>
     </header>
   )

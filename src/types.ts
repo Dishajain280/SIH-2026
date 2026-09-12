@@ -84,6 +84,45 @@ export interface UploadResult {
   status: 'queued' | 'processing' | 'done' | 'error'
   progress: number
   reportId: string
+  /** Per-file pipeline stage label while processing. */
+  stage?: string
+  /** Post-extraction summary, filled when the file reaches 'done'. */
+  confidence?: number
+  precursor?: string
+  ruleId?: string
+  risk?: RiskLevel
+}
+
+/** Time window applied to time-series charts. */
+export type TimeRange = '24h' | '7d' | '30d' | '90d' | 'all'
+
+/** A point in a time series, optionally carrying a projection branch. */
+export interface SeriesPoint {
+  label: string
+  reports: number | null
+  precursors: number | null
+  sifEvents: number | null
+  /** Projected value; null on historical points. */
+  projected?: number | null
+  projLower?: number | null
+  projUpper?: number | null
+}
+
+/** Site location + derived safety metrics for the geographic view. */
+export interface SiteGeo {
+  id: string
+  name: string
+  city: string
+  region: string
+  lon: number
+  lat: number
+  level: RiskLevel
+  score: number
+  reports: number
+  /** % of incidents with a clear Life-Saving Rule mapping. */
+  compliance: number
+  mapped: number
+  total: number
 }
 
 export interface Entity {
@@ -116,4 +155,13 @@ export interface SiteInsight {
   radar: { category: string; score: number }[]
   leading: { name: string; value: number }[]
   riskTrend: { month: string; score: number }[]
+}
+
+/** Correction a human made in the extraction review pane. Feeds LSR badge counts. */
+export interface ExtractionCorrection {
+  nlpId: string
+  field: 'entity' | 'keyword' | 'precursor' | 'ruleId' | 'confidence'
+  before: string | number
+  after: string | number
+  at: number
 }
